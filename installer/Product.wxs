@@ -66,13 +66,16 @@
       <Component Id="Cmp_systeminfo_17" Guid="*">
         <File Source="..\Release\systeminfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_userinfo_18" Guid="*">
+      <Component Id="Cmp_system_monitor_18" Guid="*">
+        <File Source="..\Release\system-monitor.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_userinfo_19" Guid="*">
         <File Source="..\Release\userinfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_version_19" Guid="*">
+      <Component Id="Cmp_version_20" Guid="*">
         <File Source="..\Release\version.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_wget_20" Guid="*">
+      <Component Id="Cmp_wget_21" Guid="*">
         <File Source="..\Release\wget.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>

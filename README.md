@@ -1,7 +1,39 @@
 cmd-extended
 ------------
-This is a collection of command line tools for the Windows default shell cmd.exe.  You can find a full list
-of commands and what they do in the commands list file in the Release folder.
+This is a collection of command line tools for the Windows default shell cmd.exe.
+
+Commands
+--------
+
+- **reboot** - Reboots the system
+- **file-manager** - Command line file manager with many functions. When you open file manager type "help" for a full list of options
+- **security-events** - Similar to dmesg in that it outputs the contents of the Windows security event log. Admin privileges are needed
+- **app-events** - Similar to dmesg in that it outputs the contents of the Windows application event log. Admin privileges are needed
+- **system-events** - Similar to dmesg in that it outputs the contents of the Windows system event log. Admin privileges are needed
+- **calculator** - Command line calculator that allows you to do simple or complex calculations
+- **calendar** - List the current date and a calendar where you can chose a specific date
+- **driveinfo** - Lists all available drives, filesystem type, used and free space
+- **list-bluetooth** - Lists all available Bluetooth devices
+- **cpuinfo** - Lists the processor installed on your system
+- **list-pci** - Lists all PCI devices installed on your system
+- **list-usb** - Lists all available USB devices on your system
+- **meminfo** - Lists all memory statistics on your system including virtual memory
+- **sudo** - Launches an admin console. get-admin -cmd launches an admin cmd session. --help shows all options
+- **version** - Lists system information including architecture type and Windows NT version. --help list all options. Similar to UNAME in UNIX
+- **system-monitor** - Lists all running processes, memory usage and how many processes running
+- **accountinfo** - Shows all user accounts on the system
+- **userinfo** - Shows all logged in users on the system and the amount of time they have been logged in
+- **clock** - Lists the current date and time
+- **logout** - Ends current user session
+- **wget** - Retrieve files over the network via the command-line
+
+History
+-------
+Developed these tools to extend the capabilities of cmd.exe to bring it more in line with UNIX in 2026.
+Was working late one night and fired up cmd.exe and started working on tyhe command line and said:
+"This sucks" and went to work correcting the issues.  These tools are not perfect by any means.  They 
+were made by me for me, I just decided to share.  If you did download and used these "Thanks!!" if you
+found them useful too; GREAT.
 
 Systems Tested
 --------------

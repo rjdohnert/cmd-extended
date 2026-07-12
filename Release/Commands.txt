@@ -18,7 +18,7 @@ sudo - Launches an admin console. get-admin -cmd launches an admin cmd session
 --help shows all options
 version - lists system information including architecture type and Windows NT version 
 --help list all options. Similar to UNAME in UNIX
-systeminfo - Lists all running processes, memory usage and how many processes running 
+system-monitor - Lists all running processes, memory usage and how many processes running 
 accountinfo - Shows all user accounts on the system.
 userinfo - Shows all logged in users on the system and the amount of time they have been logged in.
 clock - lists the current date and time
