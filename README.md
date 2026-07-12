@@ -29,10 +29,10 @@ Commands
 
 History
 -------
-Developed these tools to extend the capabilities of cmd.exe to bring it more in line with UNIX in 2026.
-Was working late one night and fired up cmd.exe and started working on tyhe command line and said:
+I developed these tools to extend the capabilities of cmd.exe to bring it more in line with UNIX in 2026.
+I was working late one night and fired up cmd.exe and started working on the command line and said:
 "This sucks" and went to work correcting the issues.  These tools are not perfect by any means.  They 
-were made by me for me, I just decided to share.  If you did download and used these "Thanks!!" if you
+were made by ME for ME, I just decided to share.  If you did download and used these "Thanks!!" if you
 found them useful too; GREAT.
 
 Systems Tested
