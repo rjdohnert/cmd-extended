@@ -33,7 +33,7 @@ I developed these tools to extend the capabilities of cmd.exe to bring it more i
 I was working late one night and fired up cmd.exe and started working on the command line and said:
 "This sucks" and went to work correcting the issues.  These tools are not perfect by any means.  They 
 were made by ME for ME, I just decided to share.  If you did download and used these "Thanks!!" if you
-found them useful too; GREAT.
+found them useful; AWESOME. Either or thank you for stopping by and having a look!!!
 
 Systems Tested
 --------------
