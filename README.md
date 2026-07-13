@@ -18,7 +18,7 @@ Commands
 - **list-pci** - Lists all PCI devices installed on your system
 - **list-usb** - Lists all available USB devices on your system
 - **meminfo** - Lists all memory statistics on your system including virtual memory
-- **sudo** - Launches an admin console. get-admin -cmd launches an admin cmd session. --help shows all options
+- **sudo** - Launches an admin console. sudo -cmd launches an admin cmd session. --help shows all options
 - **version** - Lists system information including architecture type and Windows NT version. --help list all options. Similar to UNAME in UNIX
 - **system-monitor** - Lists all running processes, memory usage and how many processes running
 - **accountinfo** - Shows all user accounts on the system
