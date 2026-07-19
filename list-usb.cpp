@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <locale>
 
 // Link with SetupAPI.lib
 #pragma comment(lib, "setupapi.lib")
@@ -37,6 +38,9 @@ std::wstring GetDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devInfoData, c
 }
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    std::wcout.imbue(std::locale(""));
+
     // Get class devices for the USB device interface class that are currently present
     HDEVINFO devInfo = SetupDiGetClassDevsW(
         &GUID_DEVINTERFACE_USB_DEVICE,
@@ -63,9 +67,24 @@ int main() {
         SP_DEVINFO_DATA devInfoData = {};
         devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
 
-        // Retrieve the device information block associated with the interface
+        // Retrieve the buffer size needed for interface detail data.
         DWORD requiredSize = 0;
-        SetupDiGetDeviceInterfaceDetailW(devInfo, &devInterfaceData, nullptr, 0, &requiredSize, &devInfoData);
+        SetupDiGetDeviceInterfaceDetailW(devInfo, &devInterfaceData, nullptr, 0, &requiredSize, nullptr);
+        if (GetLastError() != ERROR_INSUFFICIENT_BUFFER || requiredSize < sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W)) {
+            ++index;
+            continue;
+        }
+
+        std::vector<BYTE> detailBuffer(requiredSize);
+        PSP_DEVICE_INTERFACE_DETAIL_DATA_W detailData = reinterpret_cast<PSP_DEVICE_INTERFACE_DETAIL_DATA_W>(detailBuffer.data());
+        detailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
+
+        if (!SetupDiGetDeviceInterfaceDetailW(devInfo, &devInterfaceData, detailData, requiredSize, nullptr, &devInfoData)) {
+            std::wcerr << L"Failed to query USB interface detail for device #" << (index + 1)
+                       << L". Error code: " << GetLastError() << std::endl;
+            ++index;
+            continue;
+        }
 
         // Fetch properties
         std::wstring friendlyName = GetDeviceProperty(devInfo, &devInfoData, &DEVPKEY_Device_FriendlyName);
@@ -90,6 +109,13 @@ int main() {
         std::wcout << L"--------------------------------------------------\n";
 
         index++;
+    }
+
+    DWORD enumError = GetLastError();
+    if (enumError != ERROR_NO_MORE_ITEMS) {
+        std::wcerr << L"USB enumeration failed. Error code: " << enumError << std::endl;
+        SetupDiDestroyDeviceInfoList(devInfo);
+        return 1;
     }
 
     if (index == 0) {

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <locale>
 
 // Link with SetupAPI.lib
 #pragma comment(lib, "setupapi.lib")
@@ -36,6 +37,9 @@ std::wstring GetDeviceProperty(HDEVINFO devInfo, PSP_DEVINFO_DATA devInfoData, c
 }
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    std::wcout.imbue(std::locale(""));
+
     // Retrieve all present PCI devices using the "PCI" enumerator
     HDEVINFO devInfo = SetupDiGetClassDevsW(
         nullptr,
@@ -86,6 +90,13 @@ int main() {
         std::wcout << L"--------------------------------------------------\n";
 
         index++;
+    }
+
+    DWORD enumError = GetLastError();
+    if (enumError != ERROR_NO_MORE_ITEMS) {
+        std::wcerr << L"PCI enumeration failed. Error code: " << enumError << std::endl;
+        SetupDiDestroyDeviceInfoList(devInfo);
+        return 1;
     }
 
     if (index == 0) {

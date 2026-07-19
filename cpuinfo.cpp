@@ -8,6 +8,7 @@
 #include <string>
 #include <map>
 #include <iomanip>
+#include <algorithm>
 
 // Link with Advapi32.lib for Registry functions
 #pragma comment(lib, "Advapi32.lib")
@@ -29,6 +30,17 @@ struct CacheVal {
     DWORD count;
 };
 
+DWORD CountSetBits(KAFFINITY mask) {
+    DWORD count = 0;
+    while (mask) {
+        if (mask & 1) {
+            ++count;
+        }
+        mask >>= 1;
+    }
+    return count;
+}
+
 // Helper to query string values from the Registry
 std::wstring GetRegistryString(HKEY hKeyParent, const std::wstring& subKey, const std::wstring& valueName) {
     HKEY hKey = nullptr;
@@ -36,12 +48,16 @@ std::wstring GetRegistryString(HKEY hKeyParent, const std::wstring& subKey, cons
         return L"";
     }
 
-    wchar_t buffer[512] = { 0 };
-    DWORD bufferSize = sizeof(buffer);
-    std::wstring result = L"";
+    DWORD valueType = 0;
+    DWORD bufferSize = 0;
+    std::wstring result;
 
-    if (RegQueryValueExW(hKey, valueName.c_str(), nullptr, nullptr, reinterpret_cast<LPBYTE>(buffer), &bufferSize) == ERROR_SUCCESS) {
-        result = buffer;
+    LONG queryStatus = RegQueryValueExW(hKey, valueName.c_str(), nullptr, &valueType, nullptr, &bufferSize);
+    if (queryStatus == ERROR_SUCCESS && (valueType == REG_SZ || valueType == REG_EXPAND_SZ) && bufferSize >= sizeof(wchar_t)) {
+        std::vector<wchar_t> buffer(bufferSize / sizeof(wchar_t));
+        if (RegQueryValueExW(hKey, valueName.c_str(), nullptr, nullptr, reinterpret_cast<LPBYTE>(buffer.data()), &bufferSize) == ERROR_SUCCESS) {
+            result = buffer.data();
+        }
     }
 
     RegCloseKey(hKey);
@@ -112,10 +128,7 @@ bool GetProcessorTopology(DWORD& physicalCores, DWORD& logicalThreads) {
                 physicalCores++;
                 for (WORD g = 0; g < current->Processor.GroupCount; ++g) {
                     KAFFINITY mask = current->Processor.GroupMask[g].Mask;
-                    while (mask) {
-                        if (mask & 1) logicalThreads++;
-                        mask >>= 1;
-                    }
+                    logicalThreads += CountSetBits(mask);
                 }
             }
             offset += current->Size;
@@ -135,7 +148,9 @@ std::wstring GetCacheTypeString(PROCESSOR_CACHE_TYPE type) {
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    bool jsonMode = (argc > 1 && std::string(argv[1]) == "--json");
+
     SYSTEM_INFO sysInfo = {};
     GetNativeSystemInfo(&sysInfo);
 
@@ -171,6 +186,33 @@ int main() {
     // 4. Cache Data
     std::map<CacheKey, CacheVal> cacheMap;
     GetCacheInformation(cacheMap);
+
+    if (jsonMode) {
+        std::wcout << L"{\n";
+        std::wcout << L"  \"processorName\": \"" << (processorName.empty() ? L"Unknown" : processorName) << L"\",\n";
+        std::wcout << L"  \"manufacturer\": \"" << (vendorId.empty() ? L"Unknown" : vendorId) << L"\",\n";
+        std::wcout << L"  \"architecture\": \"" << architecture << L"\",\n";
+        std::wcout << L"  \"baseClockMhz\": " << nominalMhz << L",\n";
+        std::wcout << L"  \"physicalCores\": " << physicalCores << L",\n";
+        std::wcout << L"  \"logicalThreads\": " << logicalThreads << L",\n";
+        std::wcout << L"  \"cache\": [\n";
+
+        size_t idx = 0;
+        for (std::map<CacheKey, CacheVal>::const_iterator it = cacheMap.begin(); it != cacheMap.end(); ++it, ++idx) {
+            const CacheKey& key = it->first;
+            const CacheVal& val = it->second;
+            std::wcout << L"    {\n";
+            std::wcout << L"      \"level\": " << key.level << L",\n";
+            std::wcout << L"      \"type\": \"" << GetCacheTypeString(key.type) << L"\",\n";
+            std::wcout << L"      \"sizeBytes\": " << val.sizeInBytes << L",\n";
+            std::wcout << L"      \"count\": " << val.count << L"\n";
+            std::wcout << L"    }" << ((idx + 1 < cacheMap.size()) ? L"," : L"") << L"\n";
+        }
+
+        std::wcout << L"  ]\n";
+        std::wcout << L"}\n";
+        return 0;
+    }
 
     // Render Output
     std::wcout << L"\n";

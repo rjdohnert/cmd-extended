@@ -39,12 +39,15 @@ std::wstring GetRegistryString(HKEY hKeyParent, const std::wstring& subKey, cons
         return L"";
     }
 
-    wchar_t buffer[512] = { 0 };
-    DWORD bufferSize = sizeof(buffer);
-    std::wstring result = L"";
-
-    if (RegQueryValueExW(hKey, valueName.c_str(), nullptr, nullptr, reinterpret_cast<LPBYTE>(buffer), &bufferSize) == ERROR_SUCCESS) {
-        result = buffer;
+    DWORD valueType = 0;
+    DWORD bufferSize = 0;
+    std::wstring result;
+    LONG status = RegQueryValueExW(hKey, valueName.c_str(), nullptr, &valueType, nullptr, &bufferSize);
+    if (status == ERROR_SUCCESS && (valueType == REG_SZ || valueType == REG_EXPAND_SZ) && bufferSize >= sizeof(wchar_t)) {
+        std::vector<wchar_t> buffer(bufferSize / sizeof(wchar_t));
+        if (RegQueryValueExW(hKey, valueName.c_str(), nullptr, nullptr, reinterpret_cast<LPBYTE>(buffer.data()), &bufferSize) == ERROR_SUCCESS) {
+            result = buffer.data();
+        }
     }
 
     RegCloseKey(hKey);
@@ -134,7 +137,7 @@ int main(int argc, char* argv[]) {
             return 0;
         }
 
-        if (arg[0] == '-' && arg[1] != '-') {
+        if (arg.size() >= 2 && arg[0] == '-' && arg[1] != '-') {
             // Grouped short options (e.g., -srvm)
             for (size_t j = 1; j < arg.length(); ++j) {
                 has_option = true;

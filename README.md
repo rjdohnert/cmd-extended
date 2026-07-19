@@ -26,6 +26,7 @@ Commands
 - **clock** - Lists the current date and time
 - **logout** - Ends current user session
 - **wget** - Retrieve files over the network via the command-line
+- **htop** - Clone of the original UNIX utility.  This is a fork of htop4win developed by Mike Fara at Faratech
 
 History
 -------

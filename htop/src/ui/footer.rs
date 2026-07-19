@@ -1,0 +1,445 @@
+use crate::terminal::{Frame, Line, Modifier, Paragraph, Rect, Span, Style};
+
+use crate::app::{App, DialogState, FocusRegion};
+
+pub fn draw(frame: &mut Frame, app: &mut App, area: Rect) {
+    let function_keys = get_function_keys_with_num(app);
+    let theme = &app.theme;
+
+    // Check if footer is focused for keyboard navigation
+    let footer_focused = app.focus_region == FocusRegion::Footer;
+    let focused_key_index = app.focus_index;
+
+    // Compute the label width that will fit in this terminal. Labels max out at
+    // 6 chars (htop's default) but shrink down to 0 on very narrow widths so at
+    // least the key numbers stay visible.
+    let label_width = compute_label_width(&function_keys, area.width);
+    let slot_gap = 1;
+    let empty_slot_width = label_width + slot_gap + 1; // 1 char stand-in for missing key + label + gap
+
+    // Track x position for registering function key bounds
+    let mut x_pos = area.x;
+    let mut key_index = 0usize;
+
+    // htop style: F1Help  F2Setup (key is black on cyan, label is white, no space between)
+    let spans: Vec<Span> = function_keys
+        .iter()
+        .flat_map(|(key_num, key_str, label)| {
+            if key_str.is_empty() {
+                // Empty key/label pair — fill with blanks sized to match other slots
+                x_pos += empty_slot_width;
+                let blanks = " ".repeat(empty_slot_width as usize);
+                vec![Span::styled(blanks, Style::default().bg(theme.background))]
+            } else {
+                let key_width = key_str.len() as u16;
+                let total_width = key_width + label_width + slot_gap;
+
+                // Register function key region if it's a valid F-key
+                if let Some(num) = key_num {
+                    app.ui_bounds
+                        .add_function_key(*num, x_pos, area.y, total_width);
+                }
+
+                x_pos += total_width;
+
+                // Check if this key is focused
+                let is_focused =
+                    footer_focused && key_num.is_some() && key_index == focused_key_index;
+                key_index += if key_num.is_some() { 1 } else { 0 };
+
+                // Use inverted colors for focused key
+                let (key_fg, key_bg, label_fg, label_bg) = if is_focused {
+                    // Highlighted/focused: invert colors
+                    (
+                        theme.function_bar_bg,
+                        theme.function_bar_fg,
+                        theme.selection_fg,
+                        theme.selection_bg,
+                    )
+                } else {
+                    // Normal
+                    (
+                        theme.function_bar_fg,
+                        theme.function_bar_bg,
+                        theme.function_key,
+                        theme.background,
+                    )
+                };
+
+                // Truncate label to the dynamic label width (avoids overflow
+                // on narrow terminals) and left-pad to fill the cell.
+                let label_padded = if label_width == 0 {
+                    String::new()
+                } else {
+                    let mut s: String = label.chars().take(label_width as usize).collect();
+                    let missing = (label_width as usize).saturating_sub(s.chars().count());
+                    s.extend(std::iter::repeat_n(' ', missing));
+                    s
+                };
+
+                vec![
+                    Span::styled(key_str.to_string(), Style::default().fg(key_fg).bg(key_bg)),
+                    Span::styled(label_padded, Style::default().fg(label_fg).bg(label_bg)),
+                    Span::styled(" ".to_string(), Style::default().bg(theme.background)),
+                ]
+            }
+        })
+        .collect();
+
+    let line = Line::from(spans);
+    let paragraph = Paragraph::new(line).style(Style::default().bg(theme.background));
+    frame.render_widget(paragraph, area);
+
+    // Second line: filter/search status
+    if area.height > 1 {
+        let status_area = Rect::new(area.x, area.y + 1, area.width, 1);
+        let status_spans = build_status_line(app);
+        let status_line = Line::from(status_spans);
+        let status_para = Paragraph::new(status_line).style(Style::default().bg(theme.background));
+        frame.render_widget(status_para, status_area);
+    }
+}
+
+/// Pick the largest label width (0..=6) that lets the whole footer fit in
+/// `available_width`. Returns 6 on roomy terminals (htop default); shrinks on
+/// narrow ones so at least the `F1`/`F2`/… key numbers remain visible.
+fn compute_label_width(
+    function_keys: &[(Option<u8>, &'static str, &'static str)],
+    available_width: u16,
+) -> u16 {
+    // Sum of key character widths (keys with empty strings stand in for a 1-char blank).
+    let key_chars_total: u16 = function_keys
+        .iter()
+        .map(|(_, k, _)| if k.is_empty() { 1u16 } else { k.len() as u16 })
+        .sum();
+    let slots = function_keys.len() as u16;
+
+    for candidate in (0..=6u16).rev() {
+        // Each slot consumes `key_chars + candidate + 1 gap` (or
+        // `1 + candidate + 1 gap` for empty slots).
+        let needed = key_chars_total + slots * (candidate + 1);
+        if needed <= available_width {
+            return candidate;
+        }
+    }
+    0
+}
+
+/// Returns function keys with: (Option<function_key_number>, key_text, label)
+/// The function key number is used for registering click regions (e.g., Some(1) for F1)
+fn get_function_keys_with_num(app: &App) -> Vec<(Option<u8>, &'static str, &'static str)> {
+    match &app.dialog {
+        DialogState::Help { .. } => vec![
+            (Some(1), "F1", ""),
+            (Some(2), "F2", ""),
+            (Some(3), "F3", ""),
+            (Some(4), "F4", ""),
+            (Some(5), "F5", ""),
+            (Some(6), "F6", ""),
+            (Some(7), "F7", ""),
+            (Some(8), "F8", ""),
+            (Some(9), "F9", ""),
+            (Some(10), "F10", "Quit"),
+        ],
+        DialogState::Search { .. } => vec![
+            (None, "Enter", "Done"),
+            (None, "Esc", "Cancel"),
+            (Some(3), "F3", "Next"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::Filter { .. } => vec![
+            (None, "Enter", "Done"),
+            (None, "Esc", "Cancel"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::SortSelect { .. } => vec![
+            (None, "Enter", "Select"),
+            (None, "Esc", "Cancel"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::Kill { .. } => vec![
+            (None, "Enter", "Kill"),
+            (None, "Esc", "Cancel"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::Priority { .. } => vec![
+            (None, "↑/↓", "Select"),
+            (None, "Enter", "Set"),
+            (None, "Esc", "Cancel"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::SignalSelect { .. } => vec![
+            (None, "Enter", "Kill"),
+            (None, "Esc", "Back"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::UserSelect { .. } => vec![
+            (None, "Enter", "Select"),
+            (None, "Esc", "Cancel"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::Environment { .. } => vec![
+            (None, "Esc", "Close"),
+            (None, "↑↓", "Scroll"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::ColorScheme { .. } | DialogState::GpuSelect { .. } => vec![
+            (None, "Enter", "Select"),
+            (None, "Esc", "Back"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::CommandWrap { .. } => vec![
+            (None, "Esc", "Close"),
+            (None, "↑↓", "Scroll"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::ColumnConfig { .. } => vec![
+            (None, "Space", "Toggle"),
+            (None, "Shift+↑↓", "Order"),
+            (None, "Esc", "Done"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::Affinity { .. } => vec![
+            (None, "Space", "Toggle"),
+            (None, "a", "All"),
+            (None, "n", "None"),
+            (None, "Enter", "Apply"),
+            (None, "Esc", "Cancel"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::ProcessInfo { .. } => vec![
+            (None, "Esc", "Close"),
+            (None, "↑↓", "Scroll"),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+            (None, "", ""),
+        ],
+        DialogState::None | DialogState::Setup { .. } => vec![
+            (Some(1), "F1", "Help"),
+            (Some(2), "F2", "Setup"),
+            (Some(3), "F3", "Search"),
+            (Some(4), "F4", "Filter"),
+            (Some(5), "F5", "Tree"),
+            (Some(6), "F6", "Sort"),
+            (Some(7), "F7", "Pri"),
+            (Some(8), "F8", "Pri"),
+            (Some(9), "F9", "Kill"),
+            (Some(10), "F10", "Quit"),
+        ],
+    }
+}
+
+fn build_status_line(app: &App) -> Vec<Span<'static>> {
+    use std::time::Duration;
+
+    let mut spans = Vec::new();
+    let theme = &app.theme;
+
+    // Show error message (high priority) - expires after 5 seconds
+    if let Some((ref error, time)) = app.last_error
+        && time.elapsed() < Duration::from_secs(5)
+    {
+        spans.push(Span::styled(
+            format!("ERROR: {} ", error),
+            Style::default()
+                .fg(theme.failed_read)
+                .add_modifier(Modifier::BOLD),
+        ));
+        return spans; // Error takes precedence
+    }
+
+    // Show status message (success/info) - expires after 3 seconds
+    if let Some((ref msg, time)) = app.status_message
+        && time.elapsed() < Duration::from_secs(3)
+    {
+        spans.push(Span::styled(
+            format!("{} ", msg),
+            Style::default()
+                .fg(theme.meter_value_ok)
+                .add_modifier(Modifier::BOLD),
+        ));
+        return spans; // Status message takes precedence
+    }
+
+    // Show persistent update available indicator
+    if let Some((ref version, _)) = app.update_available {
+        spans.push(Span::styled(
+            format!("[Update v{} ready - restart to apply] ", version),
+            Style::default()
+                .fg(theme.meter_value_warn)
+                .add_modifier(Modifier::BOLD),
+        ));
+    }
+
+    // Show focus region indicator (Tab to switch)
+    let focus_indicator = match app.focus_region {
+        FocusRegion::Header => "[Focus:Header] ",
+        FocusRegion::ProcessList => "", // Don't show when on default
+        FocusRegion::Footer => "[Focus:Footer] ",
+    };
+    if !focus_indicator.is_empty() {
+        spans.push(Span::styled(
+            focus_indicator,
+            Style::default()
+                .fg(theme.label)
+                .add_modifier(Modifier::BOLD),
+        ));
+    }
+
+    // Show paused indicator (high priority - show first)
+    if app.paused {
+        spans.push(Span::styled(
+            "[PAUSED] ",
+            Style::default()
+                .fg(theme.paused)
+                .add_modifier(Modifier::BOLD),
+        ));
+    }
+
+    // Show follow mode indicator
+    if let Some(pid) = app.follow_pid {
+        spans.push(Span::styled(
+            format!("[Follow:{}] ", pid),
+            Style::default().fg(theme.process_priv),
+        ));
+    }
+
+    // Show user filter if active
+    if let Some(ref user) = app.user_filter {
+        spans.push(Span::styled(
+            format!("User: {} ", user),
+            Style::default().fg(theme.process_priv),
+        ));
+    }
+
+    // Show filter if active
+    if !app.filter_string.is_empty() {
+        spans.push(Span::styled("Filter: ", Style::default().fg(theme.label)));
+        spans.push(Span::styled(
+            app.filter_string.clone(),
+            Style::default().fg(theme.text),
+        ));
+        spans.push(Span::raw("  "));
+    }
+
+    // Show search if active
+    if !app.search_string.is_empty() {
+        spans.push(Span::styled("Search: ", Style::default().fg(theme.label)));
+        spans.push(Span::styled(
+            app.search_string.clone(),
+            Style::default().fg(theme.text),
+        ));
+        spans.push(Span::raw("  "));
+    }
+
+    // Show tree mode
+    if app.tree_view {
+        spans.push(Span::styled(
+            "[Tree] ",
+            Style::default().fg(theme.process_tree),
+        ));
+    }
+
+    // Show tagged count
+    if !app.tagged_pids.is_empty() {
+        spans.push(Span::styled(
+            format!("[{} tagged] ", app.tagged_pids.len()),
+            Style::default().fg(theme.process_tag),
+        ));
+    }
+
+    // Show sort column
+    spans.push(Span::styled(
+        format!(
+            "Sort: {}{} ",
+            app.sort_column.name(),
+            if app.sort_ascending { "↑" } else { "↓" }
+        ),
+        Style::default().fg(theme.text_dim),
+    ));
+
+    spans
+}

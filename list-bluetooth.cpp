@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <bluetoothapis.h>
+#include <locale>
 
 // Automatically link libraries when compiling with MSVC
 #pragma comment(lib, "Bthprops.lib")
@@ -23,6 +24,9 @@ void PrintBluetoothAddress(const BLUETOOTH_ADDRESS& address) {
 }
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    std::wcout.imbue(std::locale(""));
+
     std::cout << "\n";
     std::cout << "Initializing Bluetooth Device Scan...\n";
     std::cout << "This may take a few seconds...\n\n";

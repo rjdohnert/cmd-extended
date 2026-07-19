@@ -26,7 +26,9 @@ int main(int argc, char* argv[]) {
     if (argc > 1) {
         std::string arg = argv[1];
         // Convert argument to lowercase
-        std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
+        std::transform(arg.begin(), arg.end(), arg.begin(), [](unsigned char ch) {
+            return static_cast<char>(std::tolower(ch));
+        });
 
         if (arg == "-h" || arg == "--help") {
             PrintUsage();
@@ -40,7 +42,7 @@ int main(int argc, char* argv[]) {
         } else {
             std::cout << "Unknown option: " << argv[1] << "\n";
             PrintUsage();
-            return 1;
+            return 2;
         }
     }
 

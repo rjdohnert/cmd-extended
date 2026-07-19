@@ -10,7 +10,9 @@
 
 // Helper function to convert input to uppercase
 std::string to_upper(std::string str) {
-    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    std::transform(str.begin(), str.end(), str.begin(), [](unsigned char ch) {
+        return static_cast<char>(std::toupper(ch));
+    });
     return str;
 }
 
@@ -91,13 +93,30 @@ bool RelaunchElevated() {
     return true;
 }
 
+void PrintUsage() {
+    std::cout << "Usage: reboot [--help]\n";
+    std::cout << "Reboots the system after confirmation.\n";
+}
+
 int main(int argc, char* argv[]) {
     // Set the command prompt window title
     SetConsoleTitleA("System Reboot");
 
     bool elevatedRun = false;
-    if (argc > 1 && std::string(argv[1]) == "--elevated") {
-        elevatedRun = true;
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--help" || arg == "-h") {
+            PrintUsage();
+            return 0;
+        }
+        if (arg == "--elevated") {
+            elevatedRun = true;
+            continue;
+        }
+
+        std::cerr << "reboot: unrecognized option '" << arg << "'\n";
+        PrintUsage();
+        return 2;
     }
 
     std::cout << "\n";
@@ -133,14 +152,12 @@ int main(int argc, char* argv[]) {
                 return 0; // Reboot successfully initiated
             } else {
                 std::cerr << "ExitWindowsEx failed. Error code: " << GetLastError() << std::endl;
+                return 1;
             }
         } else {
             std::cerr << "Failed to acquire necessary reboot privileges." << std::endl;
+            return 1;
         }
-
-        // Fallback option in case API privileges fail under standard user limits
-        std::cout << "Attempting fallback reboot method..." << std::endl;
-        system("shutdown /r /t 5");
     } else {
         std::cout << "\nReboot canceled." << std::endl;
         std::cout << "Press Enter to exit...";

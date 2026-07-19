@@ -1,10 +1,13 @@
 #include <windows.h>
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 // Version: 2.0
 
-int main() {
+int main(int argc, char* argv[]) {
+    bool jsonMode = (argc > 1 && std::string(argv[1]) == "--json");
+
     MEMORYSTATUSEX memInfo;
     memInfo.dwLength = sizeof(MEMORYSTATUSEX);
 
@@ -25,6 +28,23 @@ int main() {
 
         // Configure decimal output formatting
         std::cout << std::fixed << std::setprecision(2);
+
+        if (jsonMode) {
+            std::cout << "{\n";
+            std::cout << "  \"physical\": {\n";
+            std::cout << "    \"totalGB\": " << totalPhysGB << ",\n";
+            std::cout << "    \"usedGB\": " << usedPhysGB << ",\n";
+            std::cout << "    \"availableGB\": " << availPhysGB << ",\n";
+            std::cout << "    \"memoryLoadPercent\": " << memInfo.dwMemoryLoad << "\n";
+            std::cout << "  },\n";
+            std::cout << "  \"virtual\": {\n";
+            std::cout << "    \"totalGB\": " << totalVirtGB << ",\n";
+            std::cout << "    \"usedGB\": " << usedVirtGB << ",\n";
+            std::cout << "    \"availableGB\": " << availVirtGB << "\n";
+            std::cout << "  }\n";
+            std::cout << "}\n";
+            return 0;
+        }
 
         // Display Physical Memory Status
         std::wcout <<"\n";

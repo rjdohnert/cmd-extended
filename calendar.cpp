@@ -5,8 +5,9 @@
 #include <ctime>
 #include <string>
 #include <vector>
-#include <cstdlib>
 #include <cctype>
+#include <limits>
+#include <windows.h>
 
 // Version: 2.0
 
@@ -16,6 +17,39 @@ int getDaysInMonth(int month, int year);
 int getFirstDayOfMonth(int month, int year);
 void printCalendar(int month, int year);
 std::string getMonthName(int month);
+void ClearConsole();
+bool ReadIntWithPrompt(const char* prompt, int& value);
+
+void ClearConsole() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole == INVALID_HANDLE_VALUE) {
+        return;
+    }
+
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
+        return;
+    }
+
+    const DWORD cellCount = csbi.dwSize.X * csbi.dwSize.Y;
+    COORD home = { 0, 0 };
+    DWORD written = 0;
+
+    FillConsoleOutputCharacterA(hConsole, ' ', cellCount, home, &written);
+    FillConsoleOutputAttribute(hConsole, csbi.wAttributes, cellCount, home, &written);
+    SetConsoleCursorPosition(hConsole, home);
+}
+
+bool ReadIntWithPrompt(const char* prompt, int& value) {
+    std::cout << prompt;
+    if (std::cin >> value) {
+        return true;
+    }
+
+    std::cin.clear();
+    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+    return false;
+}
 
 int main() {
     // Get the current system date
@@ -30,8 +64,8 @@ int main() {
     bool running = true;
 
     while (running) {
-        // Clear the console screen (Windows command)
-        std::system("cls");
+        // Clear the console without invoking an external shell.
+        ClearConsole();
 
         printCalendar(currentMonth, currentYear);
 
@@ -39,7 +73,11 @@ int main() {
         std::cout << " [n] Next Month   [p] Previous Month\n";
         std::cout << " [g] Go to Date   [q] Quit\n";
         std::cout << "\n Enter choice: ";
-        std::cin >> choice;
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+            continue;
+        }
 
         switch (std::tolower(static_cast<unsigned char>(choice))) {
             case 'n':
@@ -58,16 +96,20 @@ int main() {
                 break;
             case 'g': {
                 int tempMonth, tempYear;
-                std::cout << "\n Enter month (1-12): ";
-                std::cin >> tempMonth;
-                std::cout << " Enter year (e.g., 2026): ";
-                std::cin >> tempYear;
+                if (!ReadIntWithPrompt("\n Enter month (1-12): ", tempMonth) ||
+                    !ReadIntWithPrompt(" Enter year (e.g., 2026): ", tempYear)) {
+                    std::cout << " Invalid numeric input. Press Enter to continue...";
+                    std::cin.clear();
+                    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
+                    std::cin.get();
+                    break;
+                }
                 if (tempMonth >= 1 && tempMonth <= 12 && tempYear >= 1) {
                     currentMonth = tempMonth;
                     currentYear = tempYear;
                 } else {
                     std::cout << " Invalid date values. Press Enter to continue...";
-                    std::cin.ignore();
+                    std::cin.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
                     std::cin.get();
                 }
                 break;

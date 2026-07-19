@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <vector>
 
 // Version: 2.0
 
@@ -12,6 +13,55 @@
 #pragma comment(lib, "psapi.lib")
 
 typedef NTSTATUS(WINAPI* LPFN_RTLGETVERSION)(PRTL_OSVERSIONINFOEXW);
+
+struct ProcessRow {
+    DWORD pid = 0;
+    std::wstring name;
+    double memoryMB = 0.0;
+};
+
+bool CollectProcesses(std::vector<ProcessRow>& rows, double& totalMemMB) {
+    rows.clear();
+    totalMemMB = 0.0;
+
+    HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hProcessSnap == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+
+    PROCESSENTRY32W pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32W);
+    if (!Process32FirstW(hProcessSnap, &pe32)) {
+        CloseHandle(hProcessSnap);
+        return false;
+    }
+
+    do {
+        ProcessRow row;
+        row.pid = pe32.th32ProcessID;
+        row.name = pe32.szExeFile;
+
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pe32.th32ProcessID);
+        if (!hProcess) {
+            hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
+        }
+
+        if (hProcess) {
+            PROCESS_MEMORY_COUNTERS_EX pmc;
+            pmc.cb = sizeof(pmc);
+            if (GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
+                row.memoryMB = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
+            }
+            CloseHandle(hProcess);
+        }
+
+        totalMemMB += row.memoryMB;
+        rows.push_back(row);
+    } while (Process32NextW(hProcessSnap, &pe32));
+
+    CloseHandle(hProcessSnap);
+    return true;
+}
 
 // Function to retrieve and display the Windows OS version details
 void ShowOSVersion() {
@@ -113,59 +163,61 @@ void ListRunningProcesses() {
     std::wcout << std::left << std::setw(10) << L"PID" << std::setw(28) << L"Process Name" << std::setw(16) << L"Memory (MB)" << std::endl;
     std::wcout << std::wstring(60, L'-') << std::endl;
 
-    // Take a snapshot of all processes in the system
-    HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (hProcessSnap == INVALID_HANDLE_VALUE) {
-        std::wcerr << L"Failed to create toolhelp snapshot. Error code: " << GetLastError() << std::endl;
-        return;
-    }
-
-    PROCESSENTRY32W pe32;
-    pe32.dwSize = sizeof(PROCESSENTRY32W);
-
-    // Retrieve information about the first process
-    if (!Process32FirstW(hProcessSnap, &pe32)) {
-        std::wcerr << L"Failed to retrieve first process information." << std::endl;
-        CloseHandle(hProcessSnap);
-        return;
-    }
-
-    int processCount = 0;
+    std::vector<ProcessRow> rows;
     double totalMemMB = 0.0;
+    if (!CollectProcesses(rows, totalMemMB)) {
+        std::wcerr << L"Failed to collect process list. Error code: " << GetLastError() << std::endl;
+        return;
+    }
 
-    // Iterate through the list of processes
-    do {
-        HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
-        double memMB = 0.0;
-
-        if (hProcess) {
-            PROCESS_MEMORY_COUNTERS_EX pmc;
-            pmc.cb = sizeof(pmc);
-            if (GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
-                memMB = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
-            }
-            CloseHandle(hProcess);
-        }
-
-        processCount++;
-        totalMemMB += memMB;
-
-        std::wcout << std::left << std::setw(10) << pe32.th32ProcessID
-                   << std::setw(28) << pe32.szExeFile
-                   << std::setw(16) << std::fixed << std::setprecision(2) << memMB << std::endl;
-    } while (Process32NextW(hProcessSnap, &pe32));
+    for (const auto& row : rows) {
+        std::wcout << std::left << std::setw(10) << row.pid
+                   << std::setw(28) << row.name
+                   << std::setw(16) << std::fixed << std::setprecision(2) << row.memoryMB << std::endl;
+    }
 
     std::wcout << std::wstring(60, L'-') << std::endl;
-    std::wcout << L"Total processes: " << processCount << std::endl;
+    std::wcout << L"Total processes: " << rows.size() << std::endl;
     std::wcout << L"Total memory used: " << std::fixed << std::setprecision(2) << totalMemMB << L" MB" << std::endl;
     std::wcout << L"\n" << std::endl;
-
-    CloseHandle(hProcessSnap);
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    bool jsonMode = (argc > 1 && std::string(argv[1]) == "--json");
+
     // Set console output to handle Unicode formatting correctly
     std::locale::global(std::locale(""));
+
+    if (jsonMode) {
+        MEMORYSTATUSEX memInfo;
+        memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+        GlobalMemoryStatusEx(&memInfo);
+
+        std::vector<ProcessRow> rows;
+        double totalMemMB = 0.0;
+        CollectProcesses(rows, totalMemMB);
+
+        std::wcout << L"{\n";
+        std::wcout << L"  \"uptimeSeconds\": " << (GetTickCount64() / 1000ULL) << L",\n";
+        std::wcout << L"  \"memoryLoadPercent\": " << memInfo.dwMemoryLoad << L",\n";
+        std::wcout << L"  \"processCount\": " << rows.size() << L",\n";
+        std::wcout << L"  \"totalProcessMemoryMB\": " << std::fixed << std::setprecision(2) << totalMemMB << L",\n";
+        std::wcout << L"  \"processes\": [\n";
+
+        for (size_t i = 0; i < rows.size(); ++i) {
+            std::wcout << L"    {\"pid\": " << rows[i].pid
+                       << L", \"name\": \"" << rows[i].name
+                       << L"\", \"memoryMB\": " << std::fixed << std::setprecision(2) << rows[i].memoryMB << L"}";
+            if (i + 1 < rows.size()) {
+                std::wcout << L",";
+            }
+            std::wcout << L"\n";
+        }
+
+        std::wcout << L"  ]\n";
+        std::wcout << L"}\n";
+        return 0;
+    }
     
     ShowOSVersion();
     ShowSystemUptime();

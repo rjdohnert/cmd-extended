@@ -1,9 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
   <Package Name="cmd-extended" Manufacturer="cmd-extended" Version="1.0.0" UpgradeCode="9E40C982-9F69-4EED-9C31-27332A9282C9" Scope="perMachine">
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowSameVersionUpgrades="yes" />
     <MediaTemplate />
     <Launch Condition="Privileged" Message="Administrator privileges are required to install to C:\Windows\System32." />
+    <ui:WixUI Id="WixUI_FeatureTree" />
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 
     <Feature Id="MainFeature" Title="cmd-extended" Level="1">
       <ComponentGroupRef Id="CmdExtendedExecutables" />
@@ -12,70 +14,73 @@
 
   <Fragment>
     <ComponentGroup Id="CmdExtendedExecutables" Directory="System64Folder">
-      <Component Id="Cmp_accountinfo_0" Guid="*">
+      <Component Id="Cmp_accountinfo_0" Guid="*" Bitness="always64">
         <File Source="..\Release\accountinfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_app_events_1" Guid="*">
+      <Component Id="Cmp_app_events_1" Guid="*" Bitness="always64">
         <File Source="..\Release\app-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_calculator_2" Guid="*">
+      <Component Id="Cmp_calculator_2" Guid="*" Bitness="always64">
         <File Source="..\Release\calculator.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_calendar_3" Guid="*">
+      <Component Id="Cmp_calendar_3" Guid="*" Bitness="always64">
         <File Source="..\Release\calendar.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_clock_4" Guid="*">
+      <Component Id="Cmp_clock_4" Guid="*" Bitness="always64">
         <File Source="..\Release\clock.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_cpuinfo_5" Guid="*">
+      <Component Id="Cmp_cpuinfo_5" Guid="*" Bitness="always64">
         <File Source="..\Release\cpuinfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_driveinfo_6" Guid="*">
+      <Component Id="Cmp_driveinfo_6" Guid="*" Bitness="always64">
         <File Source="..\Release\driveinfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_file_manager_7" Guid="*">
+      <Component Id="Cmp_file_manager_7" Guid="*" Bitness="always64">
         <File Source="..\Release\file-manager.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_list_bluetooth_8" Guid="*">
+      <Component Id="Cmp_htop_8" Guid="*" Bitness="always64">
+        <File Source="..\Release\htop.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_list_bluetooth_9" Guid="*" Bitness="always64">
         <File Source="..\Release\list-bluetooth.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_list_pci_9" Guid="*">
+      <Component Id="Cmp_list_pci_10" Guid="*" Bitness="always64">
         <File Source="..\Release\list-pci.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_list_usb_10" Guid="*">
+      <Component Id="Cmp_list_usb_11" Guid="*" Bitness="always64">
         <File Source="..\Release\list-usb.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_logout_11" Guid="*">
+      <Component Id="Cmp_logout_12" Guid="*" Bitness="always64">
         <File Source="..\Release\logout.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_meminfo_12" Guid="*">
+      <Component Id="Cmp_meminfo_13" Guid="*" Bitness="always64">
         <File Source="..\Release\meminfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_reboot_13" Guid="*">
+      <Component Id="Cmp_reboot_14" Guid="*" Bitness="always64">
         <File Source="..\Release\reboot.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_security_events_14" Guid="*">
+      <Component Id="Cmp_security_events_15" Guid="*" Bitness="always64">
         <File Source="..\Release\security-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_sudo_15" Guid="*">
+      <Component Id="Cmp_sudo_16" Guid="*" Bitness="always64">
         <File Source="..\Release\sudo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_system_events_16" Guid="*">
+      <Component Id="Cmp_system_events_17" Guid="*" Bitness="always64">
         <File Source="..\Release\system-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_systeminfo_17" Guid="*">
+      <Component Id="Cmp_systeminfo_18" Guid="*" Bitness="always64">
         <File Source="..\Release\systeminfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_system_monitor_18" Guid="*">
+      <Component Id="Cmp_system_monitor_19" Guid="*" Bitness="always64">
         <File Source="..\Release\system-monitor.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_userinfo_19" Guid="*">
+      <Component Id="Cmp_userinfo_20" Guid="*" Bitness="always64">
         <File Source="..\Release\userinfo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_version_20" Guid="*">
+      <Component Id="Cmp_version_21" Guid="*" Bitness="always64">
         <File Source="..\Release\version.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_wget_21" Guid="*">
+      <Component Id="Cmp_wget_22" Guid="*" Bitness="always64">
         <File Source="..\Release\wget.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>

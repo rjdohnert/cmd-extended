@@ -4,12 +4,15 @@
 #include <string>
 #include <iomanip>
 #include <algorithm>
+#include <cwctype>
 
 #pragma comment(lib, "Secur32.lib")
 
 // Helper to convert std::wstring to lowercase
 std::wstring ToLower(std::wstring str) {
-    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    std::transform(str.begin(), str.end(), str.begin(), [](wchar_t ch) {
+        return std::towlower(ch);
+    });
     return str;
 }
 
@@ -69,6 +72,9 @@ void PrintDuration(ULONGLONG totalSeconds) {
 }
 
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
+    std::wcout.imbue(std::locale(""));
+
     ULONG sessionCount = 0;
     PLUID sessions = nullptr;
 

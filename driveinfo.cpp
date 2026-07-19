@@ -6,6 +6,7 @@
 #include <vector>
 #include <locale>
 #include <cwchar>
+#include <sstream>
 
 // Version: 2.0
 
@@ -13,6 +14,7 @@
 struct DriveInfo {
     std::wstring letter;
     std::wstring volumeName;
+    UINT baseDriveType = DRIVE_UNKNOWN;
     std::wstring driveType;
     std::wstring fileSystem;
     ULONGLONG totalBytes = 0;
@@ -84,8 +86,7 @@ std::wstring GetPhysicalMediaType(wchar_t driveLetter) {
 }
 
 // Resolves the general Windows drive classification
-std::wstring GetDriveTypeString(const wchar_t* driveRoot, wchar_t driveLetter) {
-    UINT type = GetDriveTypeW(driveRoot);
+std::wstring GetDriveTypeString(UINT type, wchar_t driveLetter) {
     switch (type) {
         case DRIVE_REMOVABLE: return L"Removable" + GetPhysicalMediaType(driveLetter);
         case DRIVE_FIXED:     return L"Fixed" + GetPhysicalMediaType(driveLetter);
@@ -97,7 +98,9 @@ std::wstring GetDriveTypeString(const wchar_t* driveRoot, wchar_t driveLetter) {
     }
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    bool jsonMode = (argc > 1 && std::string(argv[1]) == "--json");
+
     // Set console output to support UTF-8/Unicode formatting
     std::wcout.imbue(std::locale(""));
 
@@ -123,7 +126,8 @@ int main() {
         info.letter = drivePtr; // E.g., "C:\"
         
         wchar_t letterChar = drivePtr[0];
-        info.driveType = GetDriveTypeString(drivePtr, letterChar);
+        info.baseDriveType = GetDriveTypeW(drivePtr);
+        info.driveType = GetDriveTypeString(info.baseDriveType, letterChar);
 
         wchar_t volName[MAX_PATH + 1] = { 0 };
         wchar_t fsName[MAX_PATH + 1] = { 0 };
@@ -160,6 +164,25 @@ int main() {
         drivePtr += wcslen(drivePtr) + 1;
     }
 
+    if (jsonMode) {
+        std::wcout << L"{\n  \"drives\": [\n";
+        for (size_t i = 0; i < drives.size(); ++i) {
+            const DriveInfo& drive = drives[i];
+            std::wcout << L"    {\n";
+            std::wcout << L"      \"letter\": \"" << drive.letter << L"\",\n";
+            std::wcout << L"      \"type\": \"" << drive.driveType << L"\",\n";
+            std::wcout << L"      \"filesystem\": \"" << drive.fileSystem << L"\",\n";
+            std::wcout << L"      \"hasMedia\": " << (drive.hasMedia ? L"true" : L"false") << L",\n";
+            std::wcout << L"      \"totalBytes\": " << drive.totalBytes << L",\n";
+            std::wcout << L"      \"usedBytes\": " << drive.usedBytes << L",\n";
+            std::wcout << L"      \"freeBytes\": " << drive.freeBytes << L",\n";
+            std::wcout << L"      \"usagePercent\": " << std::fixed << std::setprecision(2) << drive.usagePercentage << L"\n";
+            std::wcout << L"    }" << (i + 1 < drives.size() ? L"," : L"") << L"\n";
+        }
+        std::wcout << L"  ]\n}\n";
+        return 0;
+    }
+
     // Output table headers
     std::wcout <<"\n";
     std::wcout << std::left 
@@ -186,7 +209,7 @@ int main() {
             std::wcout << std::left << std::setw(15) << FormatBytes(drive.freeBytes);
             std::wcout << std::left << std::fixed << std::setprecision(1) << drive.usagePercentage << L"%";
         } else {
-            if (drive.driveType == L"CD-ROM" || drive.driveType == L"Removable") {
+            if (drive.baseDriveType == DRIVE_CDROM || drive.baseDriveType == DRIVE_REMOVABLE) {
                 std::wcout << L"No Media Available";
             } else {
                 std::wcout << L"Unreadable / Not Ready";
