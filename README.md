@@ -1,3 +1,5 @@
+<img width="300" height="170" alt="freebsd-alongside-windows" src="https://github.com/user-attachments/assets/c9d1a7c4-bc15-4f44-bb96-02db22b38157" />
+
 CrossShell BSD
 ------------
 This is a collection of command line tools for the Windows command line based on the BSD coreutils.
