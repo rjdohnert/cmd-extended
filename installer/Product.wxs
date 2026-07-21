@@ -1,87 +1,153 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
-  <Package Name="cmd-extended" Manufacturer="cmd-extended" Version="1.0.0" UpgradeCode="9E40C982-9F69-4EED-9C31-27332A9282C9" Scope="perMachine">
+  <Package Name="CrossShell-BSD" Manufacturer="CrossShell" Version="3.0.0" UpgradeCode="9E40C982-9F69-4EED-9C31-27332A9282C9" Scope="perMachine">
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowSameVersionUpgrades="yes" />
     <MediaTemplate />
     <Launch Condition="Privileged" Message="Administrator privileges are required to install to C:\Windows\System32." />
     <ui:WixUI Id="WixUI_FeatureTree" />
     <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 
-    <Feature Id="MainFeature" Title="cmd-extended" Level="1">
+    <Feature Id="MainFeature" Title="CrossShell-BSD" Level="1">
       <ComponentGroupRef Id="CmdExtendedExecutables" />
     </Feature>
   </Package>
 
   <Fragment>
     <ComponentGroup Id="CmdExtendedExecutables" Directory="System64Folder">
-      <Component Id="Cmp_accountinfo_0" Guid="*" Bitness="always64">
-        <File Source="..\Release\accountinfo.exe" KeyPath="yes" />
-      </Component>
-      <Component Id="Cmp_app_events_1" Guid="*" Bitness="always64">
+      <Component Id="Cmp_app_events_0" Guid="*" Bitness="always64">
         <File Source="..\Release\app-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_calculator_2" Guid="*" Bitness="always64">
-        <File Source="..\Release\calculator.exe" KeyPath="yes" />
+      <Component Id="Cmp_arch_1" Guid="*" Bitness="always64">
+        <File Source="..\Release\arch.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_calendar_3" Guid="*" Bitness="always64">
-        <File Source="..\Release\calendar.exe" KeyPath="yes" />
+      <Component Id="Cmp_attach_2" Guid="*" Bitness="always64">
+        <File Source="..\Release\attach.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_clock_4" Guid="*" Bitness="always64">
+      <Component Id="Cmp_awk_3" Guid="*" Bitness="always64">
+        <File Source="..\Release\awk.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_bc_4" Guid="*" Bitness="always64">
+        <File Source="..\Release\bc.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_cal_5" Guid="*" Bitness="always64">
+        <File Source="..\Release\cal.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_cat_6" Guid="*" Bitness="always64">
+        <File Source="..\Release\cat.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_clock_7" Guid="*" Bitness="always64">
         <File Source="..\Release\clock.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_cpuinfo_5" Guid="*" Bitness="always64">
-        <File Source="..\Release\cpuinfo.exe" KeyPath="yes" />
+      <Component Id="Cmp_compress_8" Guid="*" Bitness="always64">
+        <File Source="..\Release\compress.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_driveinfo_6" Guid="*" Bitness="always64">
-        <File Source="..\Release\driveinfo.exe" KeyPath="yes" />
+      <Component Id="Cmp_cp_9" Guid="*" Bitness="always64">
+        <File Source="..\Release\cp.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_file_manager_7" Guid="*" Bitness="always64">
+      <Component Id="Cmp_file_manager_10" Guid="*" Bitness="always64">
         <File Source="..\Release\file-manager.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_htop_8" Guid="*" Bitness="always64">
+      <Component Id="Cmp_grep_11" Guid="*" Bitness="always64">
+        <File Source="..\Release\grep.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_hostname_12" Guid="*" Bitness="always64">
+        <File Source="..\Release\hostname.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_htop_13" Guid="*" Bitness="always64">
         <File Source="..\Release\htop.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_list_bluetooth_9" Guid="*" Bitness="always64">
-        <File Source="..\Release\list-bluetooth.exe" KeyPath="yes" />
+      <Component Id="Cmp_iostat_14" Guid="*" Bitness="always64">
+        <File Source="..\Release\iostat.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_list_pci_10" Guid="*" Bitness="always64">
-        <File Source="..\Release\list-pci.exe" KeyPath="yes" />
+      <Component Id="Cmp_listusers_15" Guid="*" Bitness="always64">
+        <File Source="..\Release\listusers.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_list_usb_11" Guid="*" Bitness="always64">
-        <File Source="..\Release\list-usb.exe" KeyPath="yes" />
-      </Component>
-      <Component Id="Cmp_logout_12" Guid="*" Bitness="always64">
+      <Component Id="Cmp_logout_16" Guid="*" Bitness="always64">
         <File Source="..\Release\logout.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_meminfo_13" Guid="*" Bitness="always64">
-        <File Source="..\Release\meminfo.exe" KeyPath="yes" />
+      <Component Id="Cmp_ls_17" Guid="*" Bitness="always64">
+        <File Source="..\Release\ls.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_reboot_14" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lsbt_18" Guid="*" Bitness="always64">
+        <File Source="..\Release\lsbt.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_lscpu_19" Guid="*" Bitness="always64">
+        <File Source="..\Release\lscpu.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_lsdrv_20" Guid="*" Bitness="always64">
+        <File Source="..\Release\lsdrv.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_lspci_21" Guid="*" Bitness="always64">
+        <File Source="..\Release\lspci.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_lsusb_22" Guid="*" Bitness="always64">
+        <File Source="..\Release\lsusb.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_lsuser_23" Guid="*" Bitness="always64">
+        <File Source="..\Release\lsuser.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_mem_24" Guid="*" Bitness="always64">
+        <File Source="..\Release\mem.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_mv_25" Guid="*" Bitness="always64">
+        <File Source="..\Release\mv.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_pkg_26" Guid="*" Bitness="always64">
+        <File Source="..\Release\pkg.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_pwd_27" Guid="*" Bitness="always64">
+        <File Source="..\Release\pwd.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_reboot_28" Guid="*" Bitness="always64">
         <File Source="..\Release\reboot.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_security_events_15" Guid="*" Bitness="always64">
+      <Component Id="Cmp_rm_29" Guid="*" Bitness="always64">
+        <File Source="..\Release\rm.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_security_events_30" Guid="*" Bitness="always64">
         <File Source="..\Release\security-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_sudo_16" Guid="*" Bitness="always64">
+      <Component Id="Cmp_sed_31" Guid="*" Bitness="always64">
+        <File Source="..\Release\sed.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_sleep_32" Guid="*" Bitness="always64">
+        <File Source="..\Release\sleep.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_sudo_33" Guid="*" Bitness="always64">
         <File Source="..\Release\sudo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_system_events_17" Guid="*" Bitness="always64">
+      <Component Id="Cmp_system_events_34" Guid="*" Bitness="always64">
         <File Source="..\Release\system-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_systeminfo_18" Guid="*" Bitness="always64">
-        <File Source="..\Release\systeminfo.exe" KeyPath="yes" />
-      </Component>
-      <Component Id="Cmp_system_monitor_19" Guid="*" Bitness="always64">
+      <Component Id="Cmp_system_monitor_35" Guid="*" Bitness="always64">
         <File Source="..\Release\system-monitor.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_userinfo_20" Guid="*" Bitness="always64">
-        <File Source="..\Release\userinfo.exe" KeyPath="yes" />
+      <Component Id="Cmp_tail_36" Guid="*" Bitness="always64">
+        <File Source="..\Release\tail.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_version_21" Guid="*" Bitness="always64">
-        <File Source="..\Release\version.exe" KeyPath="yes" />
+      <Component Id="Cmp_tee_37" Guid="*" Bitness="always64">
+        <File Source="..\Release\tee.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_wget_22" Guid="*" Bitness="always64">
+      <Component Id="Cmp_touch_38" Guid="*" Bitness="always64">
+        <File Source="..\Release\touch.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_uname_39" Guid="*" Bitness="always64">
+        <File Source="..\Release\uname.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_uniq_40" Guid="*" Bitness="always64">
+        <File Source="..\Release\uniq.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_uptime_41" Guid="*" Bitness="always64">
+        <File Source="..\Release\uptime.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_wall_42" Guid="*" Bitness="always64">
+        <File Source="..\Release\wall.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_wget_43" Guid="*" Bitness="always64">
         <File Source="..\Release\wget.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_whoami_44" Guid="*" Bitness="always64">
+        <File Source="..\Release\whoami.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

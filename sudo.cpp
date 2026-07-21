@@ -14,7 +14,7 @@ void PrintUsage() {
     std::cout << "Usage: sudo [option]\n";
     std::cout << "Options:\n";
     std::cout << "  (no option)   Launches Administrator Command Prompt (cmd.exe)\n";
-    std::cout << "  -cmd          Launches Administrator Command Prompt (cmd.exe)\n";
+    std::cout << "  -rsh          Launches Administrator RunicShell (rsh.exe)\n";
     std::cout << "  -ps           Launches Administrator Windows PowerShell (powershell.exe)\n";
     std::cout << "  -pwsh         Launches Administrator PowerShell 7 (pwsh.exe)\n";
 }
@@ -33,8 +33,8 @@ int main(int argc, char* argv[]) {
         if (arg == "-h" || arg == "--help") {
             PrintUsage();
             return 0;
-        } else if (arg == "-cmd" || arg == "cmd" || arg == "cmd.exe") {
-            targetShell = "cmd.exe";
+        } else if (arg == "-rsh" || arg == "rsh" || arg == "rsh.exe") {
+            targetShell = "rsh.exe";
         } else if (arg == "-ps" || arg == "powershell" || arg == "powershell.exe") {
             targetShell = "powershell.exe";
         } else if (arg == "-pwsh" || arg == "pwsh" || arg == "pwsh.exe") {

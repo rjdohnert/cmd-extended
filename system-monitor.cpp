@@ -18,9 +18,11 @@ struct ProcessRow {
     DWORD pid = 0;
     std::wstring name;
     double memoryMB = 0.0;
+    double memoryPercent = 0.0;
 };
 
-bool CollectProcesses(std::vector<ProcessRow>& rows, double& totalMemMB) {
+bool CollectProcesses(std::vector<ProcessRow>& rows, double& totalMemMB,
+                      double totalPhysMB) {
     rows.clear();
     totalMemMB = 0.0;
 
@@ -41,21 +43,28 @@ bool CollectProcesses(std::vector<ProcessRow>& rows, double& totalMemMB) {
         row.pid = pe32.th32ProcessID;
         row.name = pe32.szExeFile;
 
-        HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pe32.th32ProcessID);
+        HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE,
+                                      pe32.th32ProcessID);
         if (!hProcess) {
-            hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pe32.th32ProcessID);
+            hProcess =
+                OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE,
+                            pe32.th32ProcessID);
         }
 
         if (hProcess) {
             PROCESS_MEMORY_COUNTERS_EX pmc;
             pmc.cb = sizeof(pmc);
-            if (GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc))) {
-                row.memoryMB = static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
+            if (GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc,
+                                     sizeof(pmc))) {
+                row.memoryMB =
+                    static_cast<double>(pmc.WorkingSetSize) / (1024.0 * 1024.0);
             }
             CloseHandle(hProcess);
         }
 
         totalMemMB += row.memoryMB;
+        row.memoryPercent =
+            (totalPhysMB > 0) ? (row.memoryMB / totalPhysMB * 100.0) : 0.0;
         rows.push_back(row);
     } while (Process32NextW(hProcessSnap, &pe32));
 
@@ -132,10 +141,15 @@ void ShowMemoryUsage() {
 
     if (GlobalMemoryStatusEx(&memInfo)) {
         const double BYTES_TO_GB = 1024.0 * 1024.0 * 1024.0;
+        const double BYTES_TO_MB = 1024.0 * 1024.0;
 
         double totalPhysGB = memInfo.ullTotalPhys / BYTES_TO_GB;
         double availPhysGB = memInfo.ullAvailPhys / BYTES_TO_GB;
         double usedPhysGB = totalPhysGB - availPhysGB;
+        double cachedMB =
+            (memInfo.ullTotalPhys - memInfo.ullAvailPhys - memInfo.ullTotalPhys +
+             memInfo.ullTotalPhys) /
+            BYTES_TO_MB;
 
         double totalVirtGB = memInfo.ullTotalPageFile / BYTES_TO_GB;
         double availVirtGB = memInfo.ullAvailPageFile / BYTES_TO_GB;
@@ -143,16 +157,19 @@ void ShowMemoryUsage() {
 
         std::wcout << std::fixed << std::setprecision(2);
         std::wcout << L"Physical Memory (RAM):" << std::endl;
-        std::wcout << L"  Total:    " << totalPhysGB << L" GB" << std::endl;
-        std::wcout << L"  Used:     " << usedPhysGB << L" GB (" << memInfo.dwMemoryLoad << L"%)" << std::endl;
-        std::wcout << L"  Available:" << availPhysGB << L" GB" << std::endl;
+        std::wcout << L"  Total:      " << totalPhysGB << L" GB" << std::endl;
+        std::wcout << L"  Used:       " << usedPhysGB << L" GB ("
+                  << memInfo.dwMemoryLoad << L"%)" << std::endl;
+        std::wcout << L"  Available:  " << availPhysGB << L" GB"  << std::endl;
+        std::wcout << L"  Free:       " << availPhysGB << L" GB" << std::endl;
 
-        std::wcout << L"\nVirtual Memory:" << std::endl;
-        std::wcout << L"  Total:    " << totalVirtGB << L" GB" << std::endl;
-        std::wcout << L"  Used:     " << usedVirtGB << L" GB" << std::endl;
-        std::wcout << L"  Available:" << availVirtGB << L" GB" << std::endl;
+        std::wcout << L"\nVirtual Memory (Page File):" << std::endl;
+        std::wcout << L"  Total:      " << totalVirtGB << L" GB" << std::endl;
+        std::wcout << L"  Used:       " << usedVirtGB << L" GB" << std::endl;
+        std::wcout << L"  Available:  " << availVirtGB << L" GB" << std::endl;
     } else {
-        std::wcerr << L"Unable to retrieve memory status. Error code: " << GetLastError() << std::endl;
+        std::wcerr << L"Unable to retrieve memory status. Error code: "
+                  << GetLastError() << std::endl;
     }
 }
 
@@ -160,25 +177,37 @@ void ShowMemoryUsage() {
 void ListRunningProcesses() {
     std::wcout << L"\n--- Current System Processes ---" << std::endl;
     std::wcout << L"\n" << std::endl;
-    std::wcout << std::left << std::setw(10) << L"PID" << std::setw(28) << L"Process Name" << std::setw(16) << L"Memory (MB)" << std::endl;
-    std::wcout << std::wstring(60, L'-') << std::endl;
+
+    MEMORYSTATUSEX memInfo;
+    memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+    GlobalMemoryStatusEx(&memInfo);
+    double totalPhysMB = memInfo.ullTotalPhys / (1024.0 * 1024.0);
+
+    std::wcout << std::left << std::setw(10) << L"PID" << std::setw(28)
+              << L"Process Name" << std::setw(14) << L"Memory (MB)"
+              << std::setw(10) << L"% of RAM" << std::endl;
+    std::wcout << std::wstring(62, L'-') << std::endl;
 
     std::vector<ProcessRow> rows;
     double totalMemMB = 0.0;
-    if (!CollectProcesses(rows, totalMemMB)) {
-        std::wcerr << L"Failed to collect process list. Error code: " << GetLastError() << std::endl;
+    if (!CollectProcesses(rows, totalMemMB, totalPhysMB)) {
+        std::wcerr << L"Failed to collect process list. Error code: "
+                  << GetLastError() << std::endl;
         return;
     }
 
     for (const auto& row : rows) {
-        std::wcout << std::left << std::setw(10) << row.pid
-                   << std::setw(28) << row.name
-                   << std::setw(16) << std::fixed << std::setprecision(2) << row.memoryMB << std::endl;
+        std::wcout << std::left << std::setw(10) << row.pid << std::setw(28)
+                  << row.name << std::fixed << std::setprecision(2)
+                  << std::setw(14) << row.memoryMB << std::setprecision(1)
+                  << std::setw(9) << row.memoryPercent << L"%" << std::endl;
     }
 
-    std::wcout << std::wstring(60, L'-') << std::endl;
+    std::wcout << std::wstring(62, L'-') << std::endl;
     std::wcout << L"Total processes: " << rows.size() << std::endl;
-    std::wcout << L"Total memory used: " << std::fixed << std::setprecision(2) << totalMemMB << L" MB" << std::endl;
+    std::wcout << L"Total memory used: " << std::fixed << std::setprecision(2)
+              << totalMemMB << L" MB (" << (totalMemMB / totalPhysMB * 100.0)
+              << L"%)" << std::endl;
     std::wcout << L"\n" << std::endl;
 }
 
@@ -192,10 +221,11 @@ int main(int argc, char* argv[]) {
         MEMORYSTATUSEX memInfo;
         memInfo.dwLength = sizeof(MEMORYSTATUSEX);
         GlobalMemoryStatusEx(&memInfo);
+        double totalPhysMB = memInfo.ullTotalPhys / (1024.0 * 1024.0);
 
         std::vector<ProcessRow> rows;
         double totalMemMB = 0.0;
-        CollectProcesses(rows, totalMemMB);
+        CollectProcesses(rows, totalMemMB, totalPhysMB);
 
         std::wcout << L"{\n";
         std::wcout << L"  \"uptimeSeconds\": " << (GetTickCount64() / 1000ULL) << L",\n";
@@ -207,7 +237,10 @@ int main(int argc, char* argv[]) {
         for (size_t i = 0; i < rows.size(); ++i) {
             std::wcout << L"    {\"pid\": " << rows[i].pid
                        << L", \"name\": \"" << rows[i].name
-                       << L"\", \"memoryMB\": " << std::fixed << std::setprecision(2) << rows[i].memoryMB << L"}";
+                       << L"\", \"memoryMB\": " << std::fixed
+                       << std::setprecision(2) << rows[i].memoryMB
+                       << L", \"memoryPercent\": " << std::setprecision(1)
+                       << rows[i].memoryPercent << L"}";
             if (i + 1 < rows.size()) {
                 std::wcout << L",";
             }

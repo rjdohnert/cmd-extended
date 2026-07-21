@@ -4,6 +4,9 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <winnetwk.h>
+
+#pragma comment(lib, "mpr.lib")
 
 std::wstring ToWide(const std::string& input) {
     if (input.empty()) {
@@ -144,18 +147,101 @@ void ListDrives() {
 
         wchar_t volumeName[MAX_PATH] = L"";
         wchar_t fileSystemName[MAX_PATH] = L"";
-        if (!GetVolumeInformationW(rootPath, volumeName, MAX_PATH, NULL, NULL, NULL, fileSystemName, MAX_PATH)) {
+        if (!GetVolumeInformationW(rootPath, volumeName, MAX_PATH, NULL, NULL,
+                                   NULL, fileSystemName, MAX_PATH)) {
             volumeName[0] = L'\0';
             fileSystemName[0] = L'\0';
         }
 
         std::cout << std::left << std::setw(10) << ToNarrow(rootPath)
                   << std::setw(18) << driveTypeName
-                  << std::setw(14) << (fileSystemName[0] != L'\0' ? ToNarrow(fileSystemName) : "-")
-                  << (volumeName[0] != L'\0' ? ToNarrow(volumeName) : "-") << "\n";
+                  << std::setw(14)
+                  << (fileSystemName[0] != L'\0' ? ToNarrow(fileSystemName)
+                                                   : "-")
+                  << (volumeName[0] != L'\0' ? ToNarrow(volumeName) : "-")
+                  << "\n";
     }
 
     std::cout << "----------------------------------------------------------------------\n";
+}
+
+void ListNetworkShares() {
+    std::cout << "\nAvailable Network Shares:\n";
+    std::cout
+        << "----------------------------------------------------------------------\n";
+    std::cout << std::left << std::setw(40) << "Share Path" << "Type\n";
+    std::cout
+        << "----------------------------------------------------------------------\n";
+
+    HANDLE hEnum = NULL;
+    NETRESOURCEW nr = {0};
+    nr.dwType = RESOURCETYPE_DISK;
+    nr.dwScope = RESOURCE_GLOBALNET;
+    nr.dwUsage = RESOURCEUSAGE_CONNECTABLE;
+
+    DWORD dwResult =
+        WNetOpenEnumW(RESOURCE_GLOBALNET, RESOURCETYPE_DISK, RESOURCEUSAGE_ALL,
+                      NULL, &hEnum);
+    if (dwResult != NO_ERROR) {
+        std::cout << "Unable to enumerate network resources. Error: " << dwResult
+                  << "\n";
+        std::cout
+            << "----------------------------------------------------------------------\n";
+        return;
+    }
+
+    DWORD cbBuffer = 16384;
+    LPNETRESOURCEW lpnrs =
+        (LPNETRESOURCEW)GlobalAlloc(GPTR, cbBuffer);
+    if (lpnrs == NULL) {
+        WNetCloseEnum(hEnum);
+        std::cout << "Memory allocation failed.\n";
+        return;
+    }
+
+    bool foundShares = false;
+    do {
+        DWORD cEntries = (DWORD)-1;
+        dwResult = WNetEnumResourceW(hEnum, &cEntries, lpnrs, &cbBuffer);
+        if (dwResult == NO_ERROR) {
+            for (DWORD i = 0; i < cEntries; ++i) {
+                foundShares = true;
+                std::string remotePath = "";
+                std::string remoteType = "";
+
+                if (lpnrs[i].lpRemoteName) {
+                    remotePath = ToNarrow(lpnrs[i].lpRemoteName);
+                }
+
+                switch (lpnrs[i].dwType) {
+                    case RESOURCETYPE_DISK:
+                        remoteType = "Disk";
+                        break;
+                    case RESOURCETYPE_PRINT:
+                        remoteType = "Printer";
+                        break;
+                    default:
+                        remoteType = "Other";
+                        break;
+                }
+
+                std::cout << std::left << std::setw(40) << remotePath
+                          << remoteType << "\n";
+            }
+        } else if (dwResult != ERROR_NO_MORE_ITEMS) {
+            break;
+        }
+    } while (dwResult == NO_ERROR);
+
+    GlobalFree((HGLOBAL)lpnrs);
+    WNetCloseEnum(hEnum);
+
+    if (!foundShares) {
+        std::cout << "  <No network shares available>\n";
+    }
+
+    std::cout
+        << "----------------------------------------------------------------------\n";
 }
 
 void ListDirectory(const std::wstring& path) {
@@ -224,7 +310,8 @@ int main() {
     GetLocalTime(&localTime);
 
     std::cout << "\n";
-    std::cout << "File Manager\n\n";
+    std::cout << "File Manager\n";
+    std::cout << "-------------\n\n";
     std::cout << "Copyright (C) 2026, PC/OpenSystems LLC\n";
     std::cout << "All rights reserved.\n\n";
     std::cout << "Type 'help' to see the available commands.\n\n";
@@ -254,6 +341,9 @@ int main() {
         }
         else if (command == "drive") {
             ListDrives();
+        }
+        else if (command == "shares" || command == "net") {
+            ListNetworkShares();
         }
         else if (command == "ls" || command == "dir") {
             ListDirectory(current_path);
@@ -394,6 +484,7 @@ int main() {
         else if (command == "help") {
             std::cout << "Available Commands:\n"
                       << "  drive             - List all available drives\n"
+                      << "  shares            - List available network shares\n"
                       << "  ls                - List files and folders in the current directory\n"
                       << "  cd <directory>    - Move to a different directory (use '..' to go back)\n"
                       << "  mkdir <name>      - Create a new folder in the current directory\n"
