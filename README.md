@@ -89,8 +89,8 @@ Disclaimer
 -----------
 Many of these tools share a similar name with their GNU or BSD counterparts but are functionally and structurely different to
 reduce licensing issues with the GPL and in areas where POSIX complaince was near impossible.  Whenever source code was observed for actual BSD utilities BSD source code was observed no Linux/GNU source code was observed during the production of these utilities.
-GNU and the GPL are properties are registered trademarks of The Free Software Foundation.  FreeBSD is a registered Trademark of
-the FreeBSD foundation.  Linux is a registered trademark of Linus Torvals.  Windows/Windows Server are registered trademarks of
+GNU and the GPL are registered trademarks of The Free Software Foundation.  FreeBSD is a registered Trademark of
+the FreeBSD foundation.  Linux is a registered trademark of Linus Torvalds.  Windows/Windows Server are registered trademarks of
 Microsoft Corporation
 
 Systems Tested
