@@ -1,0 +1,49 @@
+Changelog
+---------
+
+Project: CrossShell BSD
+Contributors: Roberto J Dohnert
+Date: 7/21/2026
+
+Programms and Source Removed
+----------------------------
+
+htop was removed and will be packaged outside this bundle
+
+What was added
+--------------
+
+Added The following apps:
+
+Basename
+comm
+csplit
+cut 
+paste 
+dd
+du
+df
+diff
+dircolors
+dirname
+head
+m4
+md5sum
+sha256sum
+printenv
+rsync
+seq
+split
+top
+tsort
+unzip
+zip
+wc
+wipe
+xargs
+
+Issues
+------
+
+1. Top currently has an issue with "cursor" bounce 
+2. sudo currently launches an admin approval panel which currently does no work well with Server Core 

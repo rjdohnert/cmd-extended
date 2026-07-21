@@ -26,128 +26,203 @@
       <Component Id="Cmp_awk_3" Guid="*" Bitness="always64">
         <File Source="..\Release\awk.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_bc_4" Guid="*" Bitness="always64">
+      <Component Id="Cmp_basename_4" Guid="*" Bitness="always64">
+        <File Source="..\Release\basename.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_bc_5" Guid="*" Bitness="always64">
         <File Source="..\Release\bc.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_cal_5" Guid="*" Bitness="always64">
+      <Component Id="Cmp_cal_6" Guid="*" Bitness="always64">
         <File Source="..\Release\cal.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_cat_6" Guid="*" Bitness="always64">
+      <Component Id="Cmp_cat_7" Guid="*" Bitness="always64">
         <File Source="..\Release\cat.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_clock_7" Guid="*" Bitness="always64">
+      <Component Id="Cmp_clock_8" Guid="*" Bitness="always64">
         <File Source="..\Release\clock.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_compress_8" Guid="*" Bitness="always64">
+      <Component Id="Cmp_comm_9" Guid="*" Bitness="always64">
+        <File Source="..\Release\comm.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_compress_10" Guid="*" Bitness="always64">
         <File Source="..\Release\compress.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_cp_9" Guid="*" Bitness="always64">
+      <Component Id="Cmp_cp_11" Guid="*" Bitness="always64">
         <File Source="..\Release\cp.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_file_manager_10" Guid="*" Bitness="always64">
+      <Component Id="Cmp_csplit_12" Guid="*" Bitness="always64">
+        <File Source="..\Release\csplit.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_cut_13" Guid="*" Bitness="always64">
+        <File Source="..\Release\cut.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_dd_14" Guid="*" Bitness="always64">
+        <File Source="..\Release\dd.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_df_15" Guid="*" Bitness="always64">
+        <File Source="..\Release\df.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_diff_16" Guid="*" Bitness="always64">
+        <File Source="..\Release\diff.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_dircolors_17" Guid="*" Bitness="always64">
+        <File Source="..\Release\dircolors.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_dirname_18" Guid="*" Bitness="always64">
+        <File Source="..\Release\dirname.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_du_19" Guid="*" Bitness="always64">
+        <File Source="..\Release\du.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_file_manager_20" Guid="*" Bitness="always64">
         <File Source="..\Release\file-manager.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_grep_11" Guid="*" Bitness="always64">
+      <Component Id="Cmp_grep_21" Guid="*" Bitness="always64">
         <File Source="..\Release\grep.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_hostname_12" Guid="*" Bitness="always64">
+      <Component Id="Cmp_head_22" Guid="*" Bitness="always64">
+        <File Source="..\Release\head.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_hostname_23" Guid="*" Bitness="always64">
         <File Source="..\Release\hostname.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_htop_13" Guid="*" Bitness="always64">
-        <File Source="..\Release\htop.exe" KeyPath="yes" />
-      </Component>
-      <Component Id="Cmp_iostat_14" Guid="*" Bitness="always64">
+      <Component Id="Cmp_iostat_24" Guid="*" Bitness="always64">
         <File Source="..\Release\iostat.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_listusers_15" Guid="*" Bitness="always64">
+      <Component Id="Cmp_listusers_25" Guid="*" Bitness="always64">
         <File Source="..\Release\listusers.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_logout_16" Guid="*" Bitness="always64">
+      <Component Id="Cmp_logout_26" Guid="*" Bitness="always64">
         <File Source="..\Release\logout.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_ls_17" Guid="*" Bitness="always64">
+      <Component Id="Cmp_ls_27" Guid="*" Bitness="always64">
         <File Source="..\Release\ls.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_lsbt_18" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lsbt_28" Guid="*" Bitness="always64">
         <File Source="..\Release\lsbt.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_lscpu_19" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lscpu_29" Guid="*" Bitness="always64">
         <File Source="..\Release\lscpu.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_lsdrv_20" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lsdrv_30" Guid="*" Bitness="always64">
         <File Source="..\Release\lsdrv.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_lspci_21" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lspci_31" Guid="*" Bitness="always64">
         <File Source="..\Release\lspci.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_lsusb_22" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lsusb_32" Guid="*" Bitness="always64">
         <File Source="..\Release\lsusb.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_lsuser_23" Guid="*" Bitness="always64">
+      <Component Id="Cmp_lsuser_33" Guid="*" Bitness="always64">
         <File Source="..\Release\lsuser.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_mem_24" Guid="*" Bitness="always64">
+      <Component Id="Cmp_m4_34" Guid="*" Bitness="always64">
+        <File Source="..\Release\m4.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_md5sum_35" Guid="*" Bitness="always64">
+        <File Source="..\Release\md5sum.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_mem_36" Guid="*" Bitness="always64">
         <File Source="..\Release\mem.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_mv_25" Guid="*" Bitness="always64">
+      <Component Id="Cmp_mv_37" Guid="*" Bitness="always64">
         <File Source="..\Release\mv.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_pkg_26" Guid="*" Bitness="always64">
+      <Component Id="Cmp_paste_38" Guid="*" Bitness="always64">
+        <File Source="..\Release\paste.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_pkg_39" Guid="*" Bitness="always64">
         <File Source="..\Release\pkg.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_pwd_27" Guid="*" Bitness="always64">
+      <Component Id="Cmp_printenv_40" Guid="*" Bitness="always64">
+        <File Source="..\Release\printenv.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_pwd_41" Guid="*" Bitness="always64">
         <File Source="..\Release\pwd.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_reboot_28" Guid="*" Bitness="always64">
+      <Component Id="Cmp_reboot_42" Guid="*" Bitness="always64">
         <File Source="..\Release\reboot.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_rm_29" Guid="*" Bitness="always64">
+      <Component Id="Cmp_rm_43" Guid="*" Bitness="always64">
         <File Source="..\Release\rm.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_security_events_30" Guid="*" Bitness="always64">
+      <Component Id="Cmp_rsync_44" Guid="*" Bitness="always64">
+        <File Source="..\Release\rsync.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_security_events_45" Guid="*" Bitness="always64">
         <File Source="..\Release\security-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_sed_31" Guid="*" Bitness="always64">
+      <Component Id="Cmp_sed_46" Guid="*" Bitness="always64">
         <File Source="..\Release\sed.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_sleep_32" Guid="*" Bitness="always64">
+      <Component Id="Cmp_seq_47" Guid="*" Bitness="always64">
+        <File Source="..\Release\seq.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_sha256sum_48" Guid="*" Bitness="always64">
+        <File Source="..\Release\sha256sum.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_sleep_49" Guid="*" Bitness="always64">
         <File Source="..\Release\sleep.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_sudo_33" Guid="*" Bitness="always64">
+      <Component Id="Cmp_split_50" Guid="*" Bitness="always64">
+        <File Source="..\Release\split.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_sudo_51" Guid="*" Bitness="always64">
         <File Source="..\Release\sudo.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_system_events_34" Guid="*" Bitness="always64">
+      <Component Id="Cmp_system_events_52" Guid="*" Bitness="always64">
         <File Source="..\Release\system-events.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_system_monitor_35" Guid="*" Bitness="always64">
+      <Component Id="Cmp_system_monitor_53" Guid="*" Bitness="always64">
         <File Source="..\Release\system-monitor.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_tail_36" Guid="*" Bitness="always64">
+      <Component Id="Cmp_tail_54" Guid="*" Bitness="always64">
         <File Source="..\Release\tail.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_tee_37" Guid="*" Bitness="always64">
+      <Component Id="Cmp_tee_55" Guid="*" Bitness="always64">
         <File Source="..\Release\tee.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_touch_38" Guid="*" Bitness="always64">
+      <Component Id="Cmp_top_56" Guid="*" Bitness="always64">
+        <File Source="..\Release\top.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_touch_57" Guid="*" Bitness="always64">
         <File Source="..\Release\touch.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_uname_39" Guid="*" Bitness="always64">
+      <Component Id="Cmp_tsort_58" Guid="*" Bitness="always64">
+        <File Source="..\Release\tsort.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_uname_59" Guid="*" Bitness="always64">
         <File Source="..\Release\uname.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_uniq_40" Guid="*" Bitness="always64">
+      <Component Id="Cmp_uniq_60" Guid="*" Bitness="always64">
         <File Source="..\Release\uniq.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_uptime_41" Guid="*" Bitness="always64">
+      <Component Id="Cmp_unzip_61" Guid="*" Bitness="always64">
+        <File Source="..\Release\unzip.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_uptime_62" Guid="*" Bitness="always64">
         <File Source="..\Release\uptime.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_wall_42" Guid="*" Bitness="always64">
+      <Component Id="Cmp_wall_63" Guid="*" Bitness="always64">
         <File Source="..\Release\wall.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_wget_43" Guid="*" Bitness="always64">
+      <Component Id="Cmp_wc_64" Guid="*" Bitness="always64">
+        <File Source="..\Release\wc.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_wget_65" Guid="*" Bitness="always64">
         <File Source="..\Release\wget.exe" KeyPath="yes" />
       </Component>
-      <Component Id="Cmp_whoami_44" Guid="*" Bitness="always64">
+      <Component Id="Cmp_whoami_66" Guid="*" Bitness="always64">
         <File Source="..\Release\whoami.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_wipe_67" Guid="*" Bitness="always64">
+        <File Source="..\Release\wipe.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_xargs_68" Guid="*" Bitness="always64">
+        <File Source="..\Release\xargs.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="Cmp_zip_69" Guid="*" Bitness="always64">
+        <File Source="..\Release\zip.exe" KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>

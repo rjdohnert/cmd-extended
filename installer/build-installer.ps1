@@ -13,11 +13,6 @@ $manufacturer = "CrossShell"
 $productVersion = "3.0.0"
 $upgradeCode = "9E40C982-9F69-4EED-9C31-27332A9282C9"
 
-$requiredExe = Join-Path $releaseDir "htop.exe"
-if (-not (Test-Path -Path $requiredExe -PathType Leaf)) {
-  throw "Required executable missing: '$requiredExe'. Build aborted."
-}
-
 $exeFiles = Get-ChildItem -Path $releaseDir -Filter *.exe | Sort-Object Name
 if (-not $exeFiles) {
     throw "No .exe files found in '$releaseDir'."
